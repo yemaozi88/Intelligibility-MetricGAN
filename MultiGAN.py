@@ -45,19 +45,19 @@ creatdir(output_path)
 #########################  Training data #######################
 # You should replace the addresses to your own
 print('Reading path of training data...')
-Train_Noise_path = '/home/smg/haoyuli/SiibGAN/database/GerSpa/Train/Noise/'
-Train_Clean_path = '/home/smg/haoyuli/SiibGAN/database/GerSpa/Train/Clean/'
-Train_Enhan_path = '/home/smg/haoyuli/SiibGAN/database/GerSpa/Train/MultiEnh/'
-Generator_Train_paths = get_filepaths('/home/smg/haoyuli/SiibGAN/database/GerSpa/Train/Clean/')
+Train_Noise_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Noise/'
+Train_Clean_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Clean/'
+Train_Enhan_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/MultiEnh/'
+Generator_Train_paths = get_filepaths('/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Clean/')
 
 # Data_shuffle
 random.shuffle(Generator_Train_paths)
 ######################### validation data #########################
 # You should replace the addresses to your own
 print('Reading path of validation data...')
-Test_Noise_path ='/home/smg/haoyuli/SiibGAN/database/GerSpa/Test/Noise/'
-Test_Clean_path = '/home/smg/haoyuli/SiibGAN/database/GerSpa/Test/Clean/'
-Generator_Test_paths = get_filepaths('/home/smg/haoyuli/SiibGAN/database/GerSpa/Test/Clean/') 
+Test_Noise_path ='/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Noise/'
+Test_Clean_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Clean/'
+Generator_Test_paths = get_filepaths('/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Clean/') 
 # Data_shuffle
 random.shuffle(Generator_Test_paths)
 ################################################################

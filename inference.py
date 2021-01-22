@@ -26,8 +26,8 @@ fs = 44100
 
 
 print('Reading path of processing data...')
-Test_Noise_path ='/home/smg/haoyuli/SiibGAN/database/Test/Noise/'
-Test_Clean_path = '/home/smg/haoyuli/SiibGAN/database/Test/Clean/'
+Test_Noise_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Noise/'
+Test_Clean_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Clean/'
 Generator_Test_paths = get_filepaths(Test_Clean_path)
 
 
