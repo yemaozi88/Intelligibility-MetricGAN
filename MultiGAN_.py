@@ -17,15 +17,12 @@ import subprocess
 
 import torch
 import torch.nn as nn
+from audio_util import *
 from pystoi.stoi import stoi
+from model import Generator, Discriminator
+from dataloader import *
 from tqdm import tqdm
 import pdb
-
-from model import Generator, Discriminator
-from audio_util import *
-from dataloader import *
-
-import default_settings as default
 
 random.seed(666)
 
@@ -48,20 +45,19 @@ creatdir(output_path)
 #########################  Training data #######################
 # You should replace the addresses to your own
 print('Reading path of training data...')
-Train_Noise_path = default.Train_Noise_path
-Train_Clean_path = default.Train_Clean_path
-Train_Enhan_path = default.Train_Enhan_path
-
-Generator_Train_paths = get_filepaths(Train_Clean_path)
+Train_Noise_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Noise/'
+Train_Clean_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Clean/'
+Train_Enhan_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Train/MultiEnh/'
+Generator_Train_paths = get_filepaths('/home/takkan/repos/Intelligibility-MetricGAN/database/Train/Clean/')
 
 # Data_shuffle
 random.shuffle(Generator_Train_paths)
 ######################### validation data #########################
 # You should replace the addresses to your own
 print('Reading path of validation data...')
-Test_Noise_path = default.Test_Noise_path
-Test_Clean_path = default.Test_Clean_path
-Generator_Test_paths = get_filepaths(Test_Clean_path) 
+Test_Noise_path ='/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Noise/'
+Test_Clean_path = '/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Clean/'
+Generator_Test_paths = get_filepaths('/home/takkan/repos/Intelligibility-MetricGAN/database/Test/Clean/') 
 # Data_shuffle
 random.shuffle(Generator_Test_paths)
 ################################################################
