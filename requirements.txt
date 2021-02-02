@@ -6,3 +6,5 @@ tqdm==4.36.1
 matplotlib==3.1.1
 pystoi>=0.3.3
 git+https://github.com/kamo-naoyuki/pySIIB.git
+
+numba==0.48
