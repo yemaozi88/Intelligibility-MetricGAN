@@ -34,8 +34,10 @@ TargetMetric='siib&estoi' # It can be either 'SIIB' or 'ESTOI' or both for now. 
 Target_score=np.asarray([1.0,1.0]) # Target metric scores you want generator to generate. 
 
 
-output_path='./output'
-pt_dir = './chkpt'
+#output_path='./output'
+output_path = os.path.join(default.main_dir, 'output')
+#pt_dir = './chkpt'
+pt_dir = os.path.join(default.main_dir, 'checkpoint')
 GAN_epoch=300
 num_of_sampling=500
 num_of_valid_sample=800
