@@ -13,6 +13,22 @@ win_hamm = None
 
 fs = 44100
 
+
+def load_wavs(clean_root, noise_root, enhanced_file): 
+    #f=enhanced_file.split('/')[-1]
+    #wave_name=f.split('_')[-1].split('@')[0]
+    #wav_id = enhanced_file
+    wave_name = os.path.basename(enhanced_file)
+    #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)
+    clean_wav, _ = librosa.load(os.path.join(clean_root, wave_name), sr=fs)
+    #noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)
+    noise_wav, _ = librosa.load(os.path.join(noise_root, wave_name), sr=fs) 
+
+    #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)     
+    enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    return clean_wav, noise_wav, enhanced_wav
+
+
 def compute_band_E(x):
     # X: magnitude of spectrogram (T x 513)
     X = np.abs(STFT(x)).T
@@ -120,12 +136,17 @@ def mapping_func_ger(x):
 
 
 def read_STOI(clean_root, noise_root, enhanced_file):
-    f=enhanced_file.split('/')[-1]
-    wave_name=f.split('_')[-1].split('@')[0]
-    
-    clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)
-    noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)     
-    enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    # #f=enhanced_file.split('/')[-1]
+    # #wave_name=f.split('_')[-1].split('@')[0]
+    # wav_id = enhanced_file.split('@1')[-1]
+    # #print(wav_id)
+    # #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)
+    # clean_wav, _ = librosa.load(os.path.join(clean_root, wav_id + '.wav'), sr=fs)
+    # #noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)
+    # noise_wav, _ = librosa.load(os.path.join(noise_root, wav_id + '.wav'), sr=fs)        
+    # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
     noise_wav = noise_wav[:minL]
@@ -139,12 +160,19 @@ def read_batch_STOI(clean_root, noise_root, enhanced_list):
     return stoi_score
 
 def read_SIIB(clean_root, noise_root, enhanced_file):
-    f=enhanced_file.split('/')[-1]
-    wave_name=f.split('_')[-1].split('@')[0]
-    
-    clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)     
-    enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
-    noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)     
+    # #f=enhanced_file.split('/')[-1]
+    # #wave_name=f.split('_')[-1].split('@')[0]
+    # wav_id = enhanced_file.split('@1')[-1]
+    # #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)
+    # clean_wav, _ = librosa.load(os.path.join(clean_root, wav_id + '.wav'), sr=fs)
+    # #noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)
+    # noise_wav, _ = librosa.load(os.path.join(noise_root, wav_id + '.wav'), sr=fs) 
+
+    # #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)     
+    # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    # #noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
     noise_wav = noise_wav[:minL]
@@ -159,11 +187,13 @@ def read_batch_SIIB(clean_root, noise_root, enhanced_list):
     return siib_score
 
 def read_SIIB_DRC(clean_root, noise_root, enhanced_file):
-    f=enhanced_file.split('/')[-1]
-    wave_name = f
-    clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
-    enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
-    noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)     
+    # f=enhanced_file.split('/')[-1]
+    # wave_name = f
+    # clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
+    # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    # noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+   
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
     noise_wav = noise_wav[:minL]
@@ -177,11 +207,13 @@ def read_batch_SIIB_DRC(clean_root, noise_root, enhanced_list):
     return siib_score
 
 def read_STOI_DRC(clean_root, noise_root, enhanced_file):
-    f=enhanced_file.split('/')[-1]
-    wave_name = f
-    clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
-    enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
-    noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)     
+    # f=enhanced_file.split('/')[-1]
+    # wave_name = f
+    # clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
+    # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
+    # noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+    
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
     noise_wav = noise_wav[:minL]
@@ -271,4 +303,3 @@ def SP_to_wav(mag, phase, signal_length=None):
     Rec = np.multiply(mag , np.exp(1j*phase))
     result = ISTFT(Rec)
     return result  
-

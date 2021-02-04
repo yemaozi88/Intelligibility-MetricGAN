@@ -88,10 +88,17 @@ step_d = 0
 for gan_epoch in np.arange(1, GAN_epoch+1):
 
     # Prepare directories
-    creatdir(output_path+"/epoch"+str(gan_epoch))
-    creatdir(output_path+"/epoch"+str(gan_epoch)+"/"+"Test_epoch"+str(gan_epoch))
-    creatdir(output_path+'/For_discriminator_training')
-    creatdir(output_path+'/temp')
+    #creatdir(output_path+"/epoch"+str(gan_epoch))
+    creatdir(os.path.join(output_path, "epoch" + str(gan_epoch)))
+    #creatdir(output_path+"/epoch"+str(gan_epoch)+"/"+"Test_epoch"+str(gan_epoch))
+    creatdir(os.path.join(
+        output_path, 
+        "epoch" + str(gan_epoch), 
+        "Test_epoch" + str(gan_epoch)))
+    #creatdir(output_path+'/For_discriminator_training')
+    creatdir(os.path.join(output_path, 'For_discriminator_training'))
+    #creatdir(output_path+'/temp')
+    creatdir(os.path.join(output_path, 'temp'))
 
     # random sample some training data  
     random.shuffle(Generator_Train_paths)
@@ -143,9 +150,10 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             for i, path in enumerate(Generator_Test_paths[0:num_of_valid_sample]):
                 S = path.split('/')
                 wave_name = S[-1]
+                #print(wave_name)
 
                 clean_wav,_ = librosa.load(path, sr=fs)
-                noise_wav,_ = librosa.load(Test_Noise_path+wave_name, sr=fs)
+                noise_wav,_ = librosa.load(os.path.join(Test_Noise_path, wave_name), sr=fs)
                 noise_mag,noise_phase = Sp_and_phase(noise_wav, Normalization=True)
                 clean_mag,clean_phase = Sp_and_phase(clean_wav, Normalization=True)
                 
@@ -162,10 +170,20 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                 enh_mag = (enh_mag**(1/0.30)).detach().cpu().squeeze(0).numpy()
                 enh_wav = SP_to_wav(enh_mag.T, clean_phase)
 
+                #wav_id = wave_name.replace('.wav', '')
                 if utterance<20: # Only seperatly save the firt 20 utterance for listening comparision 
-                    enhanced_name=output_path+"/epoch"+str(gan_epoch)+"/"+"Test_epoch"+str(gan_epoch)+"/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+                    #enhanced_name=output_path+"/epoch"+str(gan_epoch)+"/"+"Test_epoch"+str(gan_epoch)+"/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+                    enhanced_name = os.path.join(
+                        output_path, 
+                        "epoch" + str(gan_epoch), 
+                        "Test_epoch" + str(gan_epoch), 
+                        wave_name)
                 else:
-                    enhanced_name=output_path+"/temp"+"/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+                    #enhanced_name=output_path+"/temp"+"/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+                    enhanced_name = os.path.join(
+                        output_path, 
+                        "temp",
+                        wave_name)
             
                 librosa.output.write_wav(enhanced_name, enh_wav, fs)
                 utterance+=1      
@@ -217,7 +235,8 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             S = path.split('/')
             wave_name = S[-1]
             clean_wav,_ = librosa.load(path, sr=fs)
-            noise_wav,_ = librosa.load(Train_Noise_path+wave_name, sr=fs)
+            #noise_wav,_ = librosa.load(Train_Noise_path+wave_name, sr=fs)
+            noise_wav,_ = librosa.load(os.path.join(Train_Noise_path, wave_name), sr=fs)
             noise_mag,noise_phase = Sp_and_phase(noise_wav, Normalization=True)
             clean_mag,clean_phase = Sp_and_phase(clean_wav, Normalization=True)
             
@@ -234,7 +253,13 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             enh_mag = (enh_mag**(1/0.30)).detach().cpu().squeeze(0).numpy()
             enh_wav = SP_to_wav(enh_mag.T, clean_phase)
 
-            enhanced_name=output_path+"/For_discriminator_training/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+            wav_id = wave_name.replace('.wav', '')
+            #enhanced_name=output_path+"/For_discriminator_training/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
+            enhanced_name = os.path.join(
+                output_path, 
+                "For_discriminator_training", 
+                wave_name)
+
             librosa.output.write_wav(enhanced_name, enh_wav, fs)
             Enhanced_name.append(enhanced_name)
 
@@ -247,7 +272,8 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         train_SIIB = List_concat_score(train_SIIB, train_STOI)
         current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
     
-        DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]
+        #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
+        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S)) for S in Enhanced_name]
         #pdb.set_trace()
         train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
         train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
@@ -313,7 +339,9 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         #if step_d % 1000 ==0:
         #    print('Step %d: Loss in D training is %.3f'%(step_d,loss.item()))
     
-    shutil.rmtree(output_path+'/temp')
+    #shutil.rmtree(output_path+'/temp')
+    shutil.rmtree(os.path.join(output_path, 'temp'))
+    
     print('Epoch %d Finished' % gan_epoch)
 
 print('Finished')
