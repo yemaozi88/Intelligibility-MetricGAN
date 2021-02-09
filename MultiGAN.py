@@ -29,20 +29,21 @@ import default_settings as default
 
 random.seed(666)
 
-# 1st: SIIB 2nd: ESTOI 
-TargetMetric='siib&estoi' # It can be either 'SIIB' or 'ESTOI' or both for now. Of course, it can be any arbitary metric of interest.
-Target_score=np.asarray([1.0,1.0]) # Target metric scores you want generator to generate. 
+#####  
+## load the settings. 
+## [TODO] this part should be replaced with hparam.
+#####
+TargetMetric = default.TargetMetric
+Target_score = default.Target_score
 
+output_path = default.output_path
+pt_dir = default.pt_dir
 
-#output_path='./output'
-output_path = os.path.join(default.main_dir, 'output')
-#pt_dir = './chkpt'
-pt_dir = os.path.join(default.main_dir, 'checkpoint')
-GAN_epoch=300
-num_of_sampling=500
-num_of_valid_sample=800
-batch_size=1
-fs = 44100
+GAN_epoch = default.GAN_epoch
+num_of_sampling = default.num_of_sampling
+num_of_valid_sample = default.num_of_valid_sample
+batch_size = default.batch_size
+fs = default.sampling_frequency
 
 
 creatdir(pt_dir)
