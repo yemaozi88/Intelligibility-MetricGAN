@@ -232,10 +232,11 @@ def Corresponding_clean_list(file_list,train_clean_path):
     while index<len(file_list):
         f=file_list[index].split('/')[-1]
                
-        wave_name=f.split('_')[-1]
-        clean_name='Train_'+wave_name
+        #wave_name=f.split('_')[-1]
+        #clean_name='Train_'+wave_name
             
-        co_clean_list.append('1.00,'+train_Clean_path+clean_name)
+        #co_clean_list.append('1.00,'+train_clean_path+clean_name)
+        co_clean_list.append('1.00,' + os.path.join(train_clean_path, os.path.basename(f)))
         index += 1  
     return co_clean_list
 

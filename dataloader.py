@@ -30,7 +30,7 @@ class Generator_train_dataset(Dataset):
         file = self.file_list[idx]
 
         clean_wav,_ = librosa.load(self.file_list[idx], sr=44100)
-        noise_wav,_ = librosa.load(self.noise_path+self.file_list[idx].split('/')[-1], sr=44100)
+        noise_wav,_ = librosa.load(os.path.join(self.noise_path, self.file_list[idx].split('/')[-1]), sr=44100)
 
         # already power compression by 0.30
         noise_mag,noise_phase = Sp_and_phase(noise_wav, Normalization=True)
@@ -59,10 +59,10 @@ class Discriminator_train_dataset(Dataset):
         f = self.file_list[idx].split('/')[-1]
         if '@' in f:
             f = f.split('@')[0] + '.wav'
-        noise_wav,_ = librosa.load(self.noise_path+f, sr=44100)
+        noise_wav,_ = librosa.load(os.path.join(self.noise_path, f), sr=44100)
         noise_mag, _ = Sp_and_phase(noise_wav, Normalization=True)
 
-        clean_wav, _ = librosa.load(self.clean_path+f, sr=44100)
+        clean_wav, _ = librosa.load(os.path.join(self.clean_path, f), sr=44100)
         clean_mag, _ = Sp_and_phase(clean_wav, Normalization=True)
 
         #bandNoise = compute_band_E(noise_wav) ** pban
