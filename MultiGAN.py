@@ -48,7 +48,6 @@ fs = 44100
 creatdir(pt_dir)
 creatdir(output_path)
 #########################  Training data #######################
-# You should replace the addresses to your own
 print('Reading path of training data...')
 Train_Noise_path = default.Train_Noise_path
 Train_Clean_path = default.Train_Clean_path
@@ -59,7 +58,6 @@ Generator_Train_paths = get_filepaths(Train_Clean_path)
 # Data_shuffle
 random.shuffle(Generator_Train_paths)
 ######################### validation data #########################
-# You should replace the addresses to your own
 print('Reading path of validation data...')
 Test_Noise_path = default.Test_Noise_path
 Test_Clean_path = default.Test_Clean_path
