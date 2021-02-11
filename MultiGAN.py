@@ -33,6 +33,13 @@ random.seed(666)
 ## load the settings. 
 ## [TODO] this part should be replaced with hparam.
 #####
+Train_Noise_path = default.Train_Noise_path
+Train_Clean_path = default.Train_Clean_path
+Train_Enhan_path = default.Train_Enhan_path
+
+Test_Noise_path = default.Test_Noise_path
+Test_Clean_path = default.Test_Clean_path
+
 TargetMetric = default.TargetMetric
 Target_score = default.Target_score
 
@@ -50,23 +57,13 @@ creatdir(pt_dir)
 creatdir(output_path)
 #########################  Training data #######################
 print('Reading path of training data...')
-Train_Noise_path = default.Train_Noise_path
-Train_Clean_path = default.Train_Clean_path
-Train_Enhan_path = default.Train_Enhan_path
-
 Generator_Train_paths = get_filepaths(Train_Clean_path)
-
-# Data_shuffle
 random.shuffle(Generator_Train_paths)
 ######################### validation data #########################
 print('Reading path of validation data...')
-Test_Noise_path = default.Test_Noise_path
-Test_Clean_path = default.Test_Clean_path
 Generator_Test_paths = get_filepaths(Test_Clean_path) 
-# Data_shuffle
 random.shuffle(Generator_Test_paths)
 ################################################################
-
 
 G = Generator().cuda()
 D = Discriminator().cuda()

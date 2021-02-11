@@ -6,11 +6,11 @@ repos_dir = r'/home/akikun/repos'
 iMetricGAN_dir = os.path.dirname(__file__)
 
 data_dir = r'/home/common/db/audio_corpora/nele/imgan'
-Train_Noise_path = os.path.join(data_dir, 'train_small', 'noise-10')
+Train_Noise_path = os.path.join(data_dir, 'train_small', 'noise-8')
 Train_Clean_path = os.path.join(data_dir, 'train_small', 'clean')
 Train_Enhan_path = os.path.join(data_dir, 'train_small', 'enhanced')
 
-Test_Noise_path = os.path.join(data_dir, 'test_small', 'noise-10')
+Test_Noise_path = os.path.join(data_dir, 'test_small', 'noise-8')
 Test_Clean_path = os.path.join(data_dir, 'test_small', 'clean')
 
 # the directory where the experimental results will be saved.
@@ -26,7 +26,7 @@ TargetMetric = 'siib&estoi'
 Target_score = np.asarray([1.0,1.0]) 
 
 GAN_epoch = 300
-num_of_sampling = 500
+num_of_sampling = 300
 num_of_valid_sample = 800
 batch_size = 1
 sampling_frequency = 44100
