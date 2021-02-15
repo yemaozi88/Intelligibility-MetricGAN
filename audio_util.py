@@ -146,7 +146,8 @@ def SIIB_Wrapper_jr(x, y, fs):
     return mapping_func_jr(SIIB(x, y, fs, gauss=True))
 
 def mapping_func_jr(x):
-    y = 1/(1+np.exp(-0.066*(x-54)))
+    #y = 1/(1+np.exp(-0.066*(x-54)))
+    y = 1/(1+np.exp(-0.00924*(x-170)))
     return y
 
 
