@@ -64,8 +64,8 @@ print('Reading path of validation data...')
 Generator_Test_paths = get_filepaths(Test_Clean_path) 
 random.shuffle(Generator_Test_paths)
 ################################################################
-
 G = Generator().cuda()
+
 D = Discriminator().cuda()
 MSELoss = nn.MSELoss().cuda()
 
@@ -76,6 +76,7 @@ Test_STOI = []
 Test_SIIB = []
 
 Previous_Discriminator_training_list = []
+# [Aki] Why?? output_path is just made above.
 shutil.rmtree(output_path)
 
 step_g = 0
@@ -96,7 +97,8 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     #creatdir(output_path+'/temp')
     creatdir(os.path.join(output_path, 'temp'))
 
-    # random sample some training data  
+    # random sample some training data 
+    # randomize every epoch.
     random.shuffle(Generator_Train_paths)
     genloader = create_dataloader(Generator_Train_paths[0:round(1*num_of_sampling)],Train_Noise_path)
 
