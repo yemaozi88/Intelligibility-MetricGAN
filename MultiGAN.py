@@ -71,7 +71,6 @@ Generator_Test_paths = get_filepaths(Test_Clean_path)
 random.shuffle(Generator_Test_paths)
 ################################################################
 G = Generator().cuda()
-
 D = Discriminator().cuda()
 MSELoss = nn.MSELoss().cuda()
 
@@ -181,13 +180,13 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                         output_path, 
                         "epoch" + str(gan_epoch), 
                         "Test_epoch" + str(gan_epoch), 
-                        wave_name)
+                        wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:])
                 else:
                     #enhanced_name=output_path+"/temp"+"/"+ wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:]
                     enhanced_name = os.path.join(
                         output_path, 
                         "temp",
-                        wave_name)
+                        wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:])
             
                 librosa.output.write_wav(enhanced_name, enh_wav, fs)
                 utterance+=1      
@@ -266,7 +265,8 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             enhanced_name = os.path.join(
                 output_path, 
                 "For_discriminator_training", 
-                wave_name)
+                #wave_name
+                wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:])
 
             librosa.output.write_wav(enhanced_name, enh_wav, fs)
             Enhanced_name.append(enhanced_name)
@@ -281,7 +281,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
     
         #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
-        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S)) for S in Enhanced_name]
+        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S).split('@')[0]+'.wav') for S in Enhanced_name]
         #pdb.set_trace()
         train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
         train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)

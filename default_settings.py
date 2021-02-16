@@ -6,12 +6,14 @@ repos_dir = r'/home/akikun/repos'
 iMetricGAN_dir = os.path.dirname(__file__)
 
 data_dir = r'/home/common/db/audio_corpora/nele/imgan/all'
-Train_Noise_path = os.path.join(data_dir, 'train_small', 'noise')
-Train_Clean_path = os.path.join(data_dir, 'train_small', 'clean')
-Train_Enhan_path = os.path.join(data_dir, 'train_small', 'enhanced')
+train_dir = os.path.join(data_dir, 'train_small')
+Train_Noise_path = os.path.join(train_dir, 'noise')
+Train_Clean_path = os.path.join(train_dir, 'clean')
+Train_Enhan_path = os.path.join(train_dir, 'enhanced')
 
-Test_Noise_path = os.path.join(data_dir, 'test_small', 'noise')
-Test_Clean_path = os.path.join(data_dir, 'test_small', 'clean')
+test_dir = os.path.join(data_dir, 'test_small')
+Test_Noise_path = os.path.join(test_dir, 'noise')
+Test_Clean_path = os.path.join(test_dir, 'clean')
 
 # the directory where the experimental results will be saved.
 main_dir = r'/home/akikun/experiments/jr'
@@ -29,5 +31,5 @@ Target_score = np.asarray([1.0,1.0])
 GAN_epoch = 300
 num_of_sampling = 500
 num_of_valid_sample = 800
-batch_size = 1
+batch_size = 10
 sampling_frequency = 44100

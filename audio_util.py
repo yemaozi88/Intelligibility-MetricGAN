@@ -14,11 +14,18 @@ win_hamm = None
 fs = 44100
 
 
-def load_wavs(clean_root, noise_root, enhanced_file): 
+def load_wavs(clean_root, noise_root, enhanced_file, DRC=False): 
     #f=enhanced_file.split('/')[-1]
     #wave_name=f.split('_')[-1].split('@')[0]
     #wav_id = enhanced_file
-    wave_name = os.path.basename(enhanced_file)
+    
+    #wave_name = os.path.basename(enhanced_file)
+    f = os.path.basename(enhanced_file)
+    if DRC:
+        wave_name = f
+    else:
+        wave_name = f.split('@')[0] + '.wav'        
+
     #clean_wav,_    = librosa.load(clean_root+'Train_'+wave_name+'.wav', sr=fs)
     clean_wav, _ = librosa.load(os.path.join(clean_root, wave_name), sr=fs)
     #noise_wav,_    = librosa.load(noise_root+'Train_'+wave_name+'.wav', sr=fs)
@@ -208,7 +215,7 @@ def read_SIIB_DRC(clean_root, noise_root, enhanced_file):
     # clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
     # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
     # noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)
-    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file, DRC=True)
    
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
@@ -228,7 +235,7 @@ def read_STOI_DRC(clean_root, noise_root, enhanced_file):
     # clean_wav,_    = librosa.load(clean_root+wave_name, sr=fs)     
     # enhanced_wav,_ = librosa.load(enhanced_file, sr=fs)
     # noise_wav,_    = librosa.load(noise_root+wave_name, sr=fs)
-    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file)
+    clean_wav, noise_wav, enhanced_wav = load_wavs(clean_root, noise_root, enhanced_file, DRC=True)
     
     minL = min(len(clean_wav),len(enhanced_wav))
     clean_wav = clean_wav[:minL]
