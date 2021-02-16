@@ -6,12 +6,12 @@ repos_dir = r'/home/akikun/repos'
 iMetricGAN_dir = os.path.dirname(__file__)
 
 data_dir = r'/home/common/db/audio_corpora/nele/imgan/all'
-train_dir = os.path.join(data_dir, 'train_small')
+train_dir = os.path.join(data_dir, 'train')
 Train_Noise_path = os.path.join(train_dir, 'noise')
 Train_Clean_path = os.path.join(train_dir, 'clean')
 Train_Enhan_path = os.path.join(train_dir, 'enhanced')
 
-test_dir = os.path.join(data_dir, 'test_small')
+test_dir = os.path.join(data_dir, 'test')
 Test_Noise_path = os.path.join(test_dir, 'noise')
 Test_Clean_path = os.path.join(test_dir, 'clean')
 
