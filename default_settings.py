@@ -17,6 +17,7 @@ Test_Clean_path = os.path.join(data_dir, 'test_small', 'clean')
 main_dir = r'/home/akikun/experiments/jr'
 output_path = os.path.join(main_dir, 'output')
 pt_dir = os.path.join(main_dir, 'checkpoint')
+log_dir = os.path.join(main_dir, 'log')
 
 # 1st: SIIB 2nd: ESTOI 
 # It can be either 'SIIB' or 'ESTOI' or both for now. 

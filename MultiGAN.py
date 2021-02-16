@@ -45,6 +45,7 @@ Target_score = default.Target_score
 
 output_path = default.output_path
 pt_dir = default.pt_dir
+log_dir = default.log_dir
 
 GAN_epoch = default.GAN_epoch
 num_of_sampling = default.num_of_sampling
@@ -55,6 +56,8 @@ fs = default.sampling_frequency
 
 creatdir(pt_dir)
 creatdir(output_path)
+creatdir(log_dir)
+
 #########################  Training data #######################
 print('Reading path of training data...')
 Generator_Train_paths = get_filepaths(Train_Clean_path)
@@ -195,7 +198,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         # Calculate True SIIB
         test_SIIB = read_batch_SIIB(Test_Clean_path, Test_Noise_path, Test_enhanced_Name)
         Test_SIIB.append(np.mean(test_SIIB))
-        with open('./log.txt','a') as f:
+        with open(os.path.join(log_dir, 'log.txt'), 'a') as f:
 	        f.write('SIIB is %.3f, ESTOI is %.3f\n'%(np.mean(test_SIIB), np.mean(test_STOI)))
         # Plot learning curves
         plt.figure(1)
@@ -205,7 +208,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         plt.ylabel('ESTOI')
         plt.grid(True)
         plt.show()
-        plt.savefig('Test_ESTOI.png', dpi=150)
+        plt.savefig(os.path.join(log_dir, 'ESTOI.png'), dpi=150)
         
         plt.figure(2)
         plt.plot(range(1,gan_epoch+1,interval_epoch),Test_SIIB,'r',label='ValidSIIB')
@@ -214,7 +217,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         plt.ylabel('SIIB')
         plt.grid(True)
         plt.show()
-        plt.savefig('Test_SIIB.png', dpi=150)
+        plt.savefig(os.path.join(log_dir, 'SIIB.png'), dpi=150)
     
     # save the current enhancement model
     save_path = os.path.join(pt_dir, 'chkpt_%d.pt' % gan_epoch)
