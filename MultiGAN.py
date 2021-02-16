@@ -26,6 +26,7 @@ from audio_util import *
 from dataloader import *
 
 import default_settings as default
+from torch.utils.tensorboard import SummaryWriter
 
 random.seed(666)
 
@@ -58,6 +59,8 @@ creatdir(pt_dir)
 creatdir(output_path)
 creatdir(log_dir)
 
+tensor_log_dir = os.path.join(log_dir, 'logs')
+tensor_writer = SummaryWriter(log_dir=tensor_log_dir)
 #########################  Training data #######################
 print('Reading path of training data...')
 Generator_Train_paths = get_filepaths(Train_Clean_path)
@@ -200,6 +203,10 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         Test_SIIB.append(np.mean(test_SIIB))
         with open(os.path.join(log_dir, 'log.txt'), 'a') as f:
 	        f.write('SIIB is %.3f, ESTOI is %.3f\n'%(np.mean(test_SIIB), np.mean(test_STOI)))
+
+        tensor_writer.add_scalar("SIIB", np.mean(test_SIIB), gan_epoch)
+        tensor_writer.add_scalar("STOI", np.mean(test_STOI), gan_epoch)
+
         # Plot learning curves
         plt.figure(1)
         plt.plot(range(1,gan_epoch+1,interval_epoch),Test_STOI,'b',label='ValidSTOI')
@@ -345,4 +352,5 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     
     print('Epoch %d Finished' % gan_epoch)
 
+tensor_writer.close()
 print('Finished')
