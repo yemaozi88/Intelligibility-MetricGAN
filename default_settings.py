@@ -31,5 +31,5 @@ Target_score = np.asarray([1.0,1.0])
 GAN_epoch = 300
 num_of_sampling = 500
 num_of_valid_sample = 800
-batch_size = 10
+batch_size = 1
 sampling_frequency = 44100
