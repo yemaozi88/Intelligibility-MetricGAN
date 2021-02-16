@@ -190,6 +190,8 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                         wave_name)
             
                 librosa.output.write_wav(enhanced_name, enh_wav, fs)
+                for t in np.arange(0, len(enh_wav)):
+                    tensor_writer.add_scalar(wave_name, enh_wav[t], t)
                 utterance+=1      
                 Test_enhanced_Name.append(enhanced_name) 
                 #print(i)
@@ -202,10 +204,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         test_SIIB = read_batch_SIIB(Test_Clean_path, Test_Noise_path, Test_enhanced_Name)
         Test_SIIB.append(np.mean(test_SIIB))
         with open(os.path.join(log_dir, 'log.txt'), 'a') as f:
-	        f.write('SIIB is %.3f, ESTOI is %.3f\n'%(np.mean(test_SIIB), np.mean(test_STOI)))
-
-        tensor_writer.add_scalar("SIIB", np.mean(test_SIIB), gan_epoch)
-        tensor_writer.add_scalar("STOI", np.mean(test_STOI), gan_epoch)
+            f.write('SIIB is %.3f, ESTOI is %.3f\n'%(np.mean(test_SIIB), np.mean(test_STOI)))
 
         # Plot learning curves
         plt.figure(1)
