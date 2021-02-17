@@ -193,7 +193,10 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                 if i == 0:
                     t = np.arange(0, len(enh_wav))/fs
                     fig = plt.figure()
-                    plt.plot(t, enh_wav)
+                    ax1 = fig.add_subplot(2, 1, 1)
+                    ax2 = fig.add_subplot(2, 1, 2)
+                    ax1.plot(t, enh_wav)
+                    ax2.specgram(enh_wav,Fs=fs)
                     tensor_writer.add_figure(wave_name, fig, gan_epoch)
 
                 utterance+=1      
