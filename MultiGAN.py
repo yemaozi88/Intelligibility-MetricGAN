@@ -189,8 +189,13 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                         wave_name[0:-4]+"@"+str(gan_epoch)+wave_name[-4:])
             
                 librosa.output.write_wav(enhanced_name, enh_wav, fs)
-                for t in np.arange(0, len(enh_wav)):
-                    tensor_writer.add_scalar(wave_name, enh_wav[t], t)
+
+                if i == 0:
+                    t = np.arange(0, len(enh_wav))/fs
+                    fig = plt.figure()
+                    plt.plot(t, enh_wav)
+                    tensor_writer.add_figure(wave_name, fig, gan_epoch)
+
                 utterance+=1      
                 Test_enhanced_Name.append(enhanced_name) 
                 #print(i)
