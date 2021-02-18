@@ -10,3 +10,4 @@ pystoi>=0.3.3
 numba==0.48
 tensorboard
 future
+Image

@@ -294,6 +294,20 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
         train_SIIB_DRC = List_concat_score(train_SIIB_DRC, train_STOI_DRC)
         Co_DRC_list = List_concat(train_SIIB_DRC, DRC_Enhanced_name)
+    elif TargetMetric=='siib':
+        # Calculate True SIIB score
+        train_SIIB = read_batch_SIIB(Train_Clean_path, Train_Noise_path, Enhanced_name)
+        #train_STOI = read_batch_STOI(Train_Clean_path, Train_Noise_path, Enhanced_name)
+        #train_SIIB = List_concat_score(train_SIIB, train_STOI)
+        current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
+    
+        #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
+        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S).split('@')[0]+'.wav') for S in Enhanced_name]
+        #pdb.set_trace()
+        train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
+        #train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
+        #train_SIIB_DRC = List_concat_score(train_SIIB_DRC, train_STOI_DRC)
+        Co_DRC_list = List_concat(train_SIIB_DRC, DRC_Enhanced_name)        
 
     print("Discriminator training...")
     # Training for current list

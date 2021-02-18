@@ -25,8 +25,10 @@ log_dir = os.path.join(main_dir, 'log')
 # It can be either 'SIIB' or 'ESTOI' or both for now. 
 # Of course, it can be any arbitary metric of interest.
 TargetMetric = 'siib&estoi'
+#TargetMetric = 'siib'
 # Target metric scores you want generator to generate. 
 Target_score = np.asarray([1.0,1.0]) 
+#Target_score = np.asarray([1.0]) 
 
 GAN_epoch = 300
 num_of_sampling = 500
