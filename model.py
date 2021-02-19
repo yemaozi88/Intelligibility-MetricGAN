@@ -57,6 +57,37 @@ class Discriminator(nn.Module):
         return x
 
 
-        
+class Discriminator_single(nn.Module):
+    def __init__(self):
+        super(Discriminator_single, self).__init__()
+        layers = []
+        layers.append(spectral_norm(nn.Conv2d(3, 8,(5,5))))
+        layers.append(spectral_norm(nn.Conv2d(8, 16, (7,7))))
+        layers.append(spectral_norm(nn.Conv2d(16, 32, (10,10))))
+        layers.append(spectral_norm(nn.Conv2d(32, 48, (15,15))))
+        layers.append(spectral_norm(nn.Conv2d(48, 64, (20,20))))
+        self.layers = nn.ModuleList(layers)
+
+        self.GAPool = nn.AdaptiveAvgPool2d((1,1))
+        self.LReLU = nn.LeakyReLU(0.3)
+        self.fc1 = spectral_norm(nn.Linear(64,64))
+        self.fc2 = spectral_norm(nn.Linear(64,10))
+        self.fc3 = spectral_norm(nn.Linear(10,1))
+
+    def forward(self,x):
+        for layer in self.layers:
+            x = layer(x)
+            x = self.LReLU(x)
+
+        x = self.GAPool(x)
+        B = x.shape[0]
+        C = x.shape[1]
+
+        x = x.view(B,C).contiguous()
+        x = self.LReLU(self.fc1(x))
+        x = self.LReLU(self.fc2(x))
+
+        x = torch.sigmoid(self.fc3(x))
+        return x
 
         
