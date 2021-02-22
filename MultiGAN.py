@@ -121,8 +121,6 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         for clean_mag,clean_phase,noise_mag,noise_phase, target in tqdm(genloader):
             clean_mag = clean_mag.cuda()
             noise_mag = noise_mag.cuda()
-            if TargetMetric=='siib' or TargetMetric=='estoi':
-                target = torch.tensor([[1.0]])
             target = target.cuda()
 
             mask = G(clean_mag, noise_mag)

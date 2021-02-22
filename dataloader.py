@@ -11,6 +11,9 @@ import scipy.io as scio
 from audio_util import *
 #import pdb
 
+import default_settings as default
+
+
 def toTorch(x):
     return torch.from_numpy(x.astype(np.float32))
 
@@ -18,7 +21,10 @@ class Generator_train_dataset(Dataset):
     def __init__(self, file_list, noise_path):
         self.file_list = file_list
         self.noise_path = noise_path
-        self.target_score = np.asarray([1.0, 1.0],dtype=np.float32)
+        if default.TargetMetric == 'siib&estoi':
+            self.target_score = np.asarray([1.0, 1.0],dtype=np.float32)
+        else:
+            self.target_score = np.asarray([1.0],dtype=np.float32)
 
     def __len__(self):
         return len(self.file_list)
@@ -53,10 +59,12 @@ class Discriminator_train_dataset(Dataset):
         pban = 0.20
         score_filepath = self.file_list[idx].split(',')
 
-        if len(score_filepath) == 3: 
-            enhance_wav,_ = librosa.load(score_filepath[2], sr=44100)
-        elif len(score_filepath) == 2:
-            enhance_wav,_ = librosa.load(score_filepath[1], sr=44100)
+        if default.TargetMetric == 'siib&estoi':
+            enhance_wav_path = score_filepath[2]
+        else:
+            enhance_wav_path = score_filepath[1]
+        
+        enhance_wav,_ = librosa.load(enhance_wav_path, sr=44100)
         enhance_mag, _ = Sp_and_phase(enhance_wav, Normalization=True)
         #pdb.set_trace()
         f = self.file_list[idx].split('/')[-1]
@@ -72,9 +80,9 @@ class Discriminator_train_dataset(Dataset):
         #bandEnhan = compute_band_E(enhance_wav) ** pban
         #bandClean = compute_band_E(clean_wav) ** pban
 
-        if len(score_filepath) == 3: 
+        if default.TargetMetric == 'siib&estoi':
             True_score = np.asarray([float(score_filepath[0]),float(score_filepath[1])],dtype=np.float32)
-        elif len(score_filepath) == 2:
+        else:
             True_score = np.asarray([float(score_filepath[0])],dtype=np.float32)
 
         #noise_mag, clean_mag, bandNoise, bandClean = noise_mag.T, clean_mag.T, bandNoise.T, bandClean.T
