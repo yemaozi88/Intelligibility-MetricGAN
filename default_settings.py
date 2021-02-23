@@ -5,7 +5,7 @@ import numpy as np
 repos_dir = r'/home/akikun/repos'
 iMetricGAN_dir = os.path.dirname(__file__)
 
-data_dir = r'/home/common/db/audio_corpora/nele/imgan/all'
+data_dir = r'/home/common/db/audio_corpora/nele/imgan/all/dataset_7000-700'
 train_dir = os.path.join(data_dir, 'train')
 Train_Noise_path = os.path.join(train_dir, 'noise')
 Train_Clean_path = os.path.join(train_dir, 'clean')
@@ -32,6 +32,6 @@ Target_score = np.asarray([1.0,1.0])
 
 GAN_epoch = 300
 num_of_sampling = 500
-num_of_valid_sample = 50
+num_of_valid_sample = 700
 batch_size = 10
 sampling_frequency = 44100
