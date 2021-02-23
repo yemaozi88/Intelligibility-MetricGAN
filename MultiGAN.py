@@ -107,7 +107,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     random.shuffle(Generator_Train_paths)
     genloader = create_dataloader(Generator_Train_paths[0:round(1*num_of_sampling)],Train_Noise_path)
 
-    if gan_epoch>=2:
+    if gan_epoch>=10:
         print('Generator training (with discriminator fixed)...')
         for clean_mag,clean_phase,noise_mag,noise_phase, target in tqdm(genloader):
             clean_mag = clean_mag.cuda()
@@ -151,6 +151,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         G.eval()
         with torch.no_grad():
             for i, path in enumerate(Generator_Test_paths[0:num_of_valid_sample]):
+            #for i, path in enumerate(Generator_Test_paths):
                 S = path.split('/')
                 wave_name = S[-1]
                 #print(wave_name)
