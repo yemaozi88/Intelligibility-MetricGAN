@@ -43,18 +43,27 @@ Test_Noise_path = default.Test_Noise_path
 Test_Clean_path = default.Test_Clean_path
 
 TargetMetric = default.TargetMetric
-Target_score = default.Target_score
+#if not TargetMetric=='siib&estoi' and not TargetMetric=='siib' and not TargetMetric=='estoi':
+if not TargetMetric in ['siib&estoi', 'siib', 'estoi']:
+    #tensor_writer.close()
+    print('TargetMetric should be either siib&estoi, siib of estoi')
+    sys.exit()
+
+#target_score = default.target_score
 
 output_path = default.output_path
-pt_dir = default.pt_dir
-log_dir = default.log_dir
+pt_dir      = default.pt_dir
+log_dir     = default.log_dir
 
-GAN_epoch = default.GAN_epoch
-num_of_sampling = default.num_of_sampling
+GAN_epoch           = default.GAN_epoch
+num_of_sampling     = default.num_of_sampling
 num_of_valid_sample = default.num_of_valid_sample
-batch_size = default.batch_size
-fs = default.sampling_frequency
+batch_size          = default.batch_size
+fs                  = default.sampling_frequency
+shuffle_paths = default.shuffle_paths
 
+learning_rate_generator     = default.learning_rate_generator
+learning_rate_discriminator = default.learning_rate_discriminator
 
 creatdir(pt_dir)
 creatdir(output_path)
@@ -62,19 +71,18 @@ creatdir(log_dir)
 
 tensor_log_dir = os.path.join(log_dir, 'logs')
 tensor_writer = SummaryWriter(log_dir=tensor_log_dir)
-#########################  Training data #######################
-print('Reading path of training data...')
+
+#########################  load data #######################
+print('Reading paths of training data...')
 Generator_Train_paths = get_filepaths(Train_Clean_path)
-random.shuffle(Generator_Train_paths)
-######################### validation data #########################
-print('Reading path of validation data...')
+
+print('Reading paths of validation data...')
 Generator_Test_paths = get_filepaths(Test_Clean_path) 
-random.shuffle(Generator_Test_paths)
+
+if shuffle_paths:
+    random.shuffle(Generator_Train_paths)
+    random.shuffle(Generator_Test_paths)
 ################################################################
-if not TargetMetric=='siib&estoi' and not TargetMetric=='siib' and not TargetMetric=='estoi':
-    tensor_writer.close()
-    print('Finished')
-    sys.exit()
 
 G = Generator().cuda()
 if TargetMetric=='siib&estoi':
@@ -83,8 +91,8 @@ else:
     D = Discriminator_single().cuda()
 MSELoss = nn.MSELoss().cuda()
 
-optimizer_g = torch.optim.Adam(G.parameters(), lr=1e-3)
-optimizer_d = torch.optim.Adam(D.parameters(), lr=1e-3)
+optimizer_g = torch.optim.Adam(G.parameters(), lr=learning_rate_generator)
+optimizer_d = torch.optim.Adam(D.parameters(), lr=learning_rate_discriminator)
 
 Test_STOI = []
 Test_SIIB = []
@@ -113,12 +121,13 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
 
     # random sample some training data 
     # randomize every epoch.
-    random.shuffle(Generator_Train_paths)
-    genloader = create_dataloader(Generator_Train_paths[0:round(1*num_of_sampling)],Train_Noise_path)
+    if shuffle_paths:
+        random.shuffle(Generator_Train_paths)
+    genloader = create_dataloader(Generator_Train_paths[0:round(1*num_of_sampling)], Train_Noise_path)
 
-    if gan_epoch>=3:
+    if gan_epoch >= 2:
         print('Generator training (with discriminator fixed)...')
-        for clean_mag,clean_phase,noise_mag,noise_phase, target in tqdm(genloader):
+        for clean_mag, clean_phase, noise_mag, noise_phase, target in tqdm(genloader):
             clean_mag = clean_mag.cuda()
             noise_mag = noise_mag.cuda()
             target = target.cuda()
@@ -128,15 +137,15 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             clean_power = torch.pow(clean_mag.detach(), 2/0.30)
             beta_2 = torch.sum(clean_power) / torch.sum(torch.pow(mask,2)*clean_power)
             beta_p = beta_2 ** (0.30/2)
-            beta = beta_2 ** 0.5
+            beta   = beta_2 ** 0.5
 
             enh_mag = clean_mag * torch.pow(mask, 0.30) * beta_p
             ref_mag = clean_mag.detach()
 
-            enh_mag = enh_mag.view(1,1,enh_mag.shape[1],enh_mag.shape[2]).transpose(2,3).contiguous()
+            enh_mag   = enh_mag.view(1,1,enh_mag.shape[1],enh_mag.shape[2]).transpose(2,3).contiguous()
             noise_mag = noise_mag.view(1,1,noise_mag.shape[1],noise_mag.shape[2]).transpose(2,3).contiguous()
-            ref_mag = ref_mag.view(1,1,ref_mag.shape[1],ref_mag.shape[2]).transpose(2,3).contiguous()
-            d_inputs = torch.cat((enh_mag,noise_mag,ref_mag),dim=1)
+            ref_mag   = ref_mag.view(1,1,ref_mag.shape[1],ref_mag.shape[2]).transpose(2,3).contiguous()
+            d_inputs  = torch.cat((enh_mag,noise_mag,ref_mag),dim=1)
 
             score = D(d_inputs)
 
@@ -146,7 +155,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
             optimizer_g.step()
             step_g += 1
 
-            if step_g % 200 ==0:
+            if step_g % 200 == 0:
                 print((beta*mask).max())
                 print((beta*mask).min())
                 print('Step %d: Loss in G training is %.3f'%(step_g,loss.item()))
@@ -174,6 +183,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                 clean_in = torch.from_numpy(clean_in).cuda()
                 noise_in = noise_mag.reshape(1,noise_mag.shape[0],-1)
                 noise_in = torch.from_numpy(noise_in).cuda()
+
                 # Energy normalization
                 mask = G(clean_in, noise_in)
                 clean_power = torch.pow(clean_in, 2/0.30)
@@ -223,24 +233,25 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
         with open(os.path.join(log_dir, 'log.txt'), 'a') as f:
             f.write('SIIB is %.3f, ESTOI is %.3f\n'%(np.mean(test_SIIB), np.mean(test_STOI)))
 
-        # Plot learning curves
-        plt.figure(1)
-        plt.plot(range(1,gan_epoch+1,interval_epoch),Test_STOI,'b',label='ValidSTOI')
-        plt.xlim([1,gan_epoch])
-        plt.xlabel('GAN_epoch')
-        plt.ylabel('ESTOI')
-        plt.grid(True)
-        plt.show()
-        plt.savefig(os.path.join(log_dir, 'ESTOI.png'), dpi=150)
-        
-        plt.figure(2)
-        plt.plot(range(1,gan_epoch+1,interval_epoch),Test_SIIB,'r',label='ValidSIIB')
-        plt.xlim([1,gan_epoch])
-        plt.xlabel('GAN_epoch')
-        plt.ylabel('SIIB')
-        plt.grid(True)
-        plt.show()
-        plt.savefig(os.path.join(log_dir, 'SIIB.png'), dpi=150)
+        if gan_epoch > 1:
+            # Plot learning curves
+            plt.figure(1)
+            plt.plot(range(1,gan_epoch+1,interval_epoch),Test_STOI,'b',label='ValidSTOI')
+            plt.xlim([1,gan_epoch])
+            plt.xlabel('GAN_epoch')
+            plt.ylabel('ESTOI')
+            plt.grid(True)
+            plt.show()
+            plt.savefig(os.path.join(log_dir, 'ESTOI.png'), dpi=150)
+            
+            plt.figure(2)
+            plt.plot(range(1,gan_epoch+1,interval_epoch),Test_SIIB,'r',label='ValidSIIB')
+            plt.xlim([1,gan_epoch])
+            plt.xlabel('GAN_epoch')
+            plt.ylabel('SIIB')
+            plt.grid(True)
+            plt.show()
+            plt.savefig(os.path.join(log_dir, 'SIIB.png'), dpi=150)
     
     # save the current enhancement model
     save_path = os.path.join(pt_dir, 'chkpt_%d.pt' % gan_epoch)
@@ -299,6 +310,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     #pdb.set_trace()
     train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
     train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
+    
     if TargetMetric=='siib&estoi':
         train_SIIB = List_concat_score(train_SIIB, train_STOI)
         current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
@@ -319,9 +331,9 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     Current_Discriminator_training_list = current_sampling_list+Co_DRC_list
     #print(Current_Discriminator_training_list)
     #pdb.set_trace()
-
-    random.shuffle(Current_Discriminator_training_list)
-
+    
+    if shuffle_paths:
+        random.shuffle(Current_Discriminator_training_list)
     disloader = create_dataloader(Current_Discriminator_training_list, Train_Noise_path, Train_Clean_path, loader='D')
 
     for x,target in tqdm(disloader):
@@ -338,10 +350,11 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     
 
     ## Training for current list + Previous list (like replay buffer in RL, optional)
-    random.shuffle(Previous_Discriminator_training_list)
 
     Total_Discriminator_training_list=Previous_Discriminator_training_list[0:len(Previous_Discriminator_training_list)//25]+Current_Discriminator_training_list # Discriminator_Train_list is the list used for pretraining.
-    random.shuffle(Total_Discriminator_training_list)
+    if shuffle_paths:
+        random.shuffle(Previous_Discriminator_training_list)
+        random.shuffle(Total_Discriminator_training_list)
 
     disloader_past = create_dataloader(Total_Discriminator_training_list, Train_Noise_path, Train_Clean_path, loader='D')
 

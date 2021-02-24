@@ -13,18 +13,24 @@ from audio_util import *
 
 import default_settings as default
 
+batch_size    = default.batch_size
+num_workers   = default.num_workers
+TargetMetric  = default.TargetMetric
+sampling_frequency = default.sampling_frequency
+shuffle_dataloader = default.shuffle_dataloader
 
 def toTorch(x):
     return torch.from_numpy(x.astype(np.float32))
 
+
 class Generator_train_dataset(Dataset):
     def __init__(self, file_list, noise_path):
-        self.file_list = file_list
+        self.file_list  = file_list
         self.noise_path = noise_path
-        if default.TargetMetric == 'siib&estoi':
-            self.target_score = np.asarray([1.0, 1.0],dtype=np.float32)
-        else:
-            self.target_score = np.asarray([1.0],dtype=np.float32)
+        #if TargetMetric == 'siib&estoi':
+        self.target_score = np.asarray(default.target_score, dtype=np.float32)
+        #else:
+        #    self.target_score = np.asarray([1.0], dtype=np.float32)
 
     def __len__(self):
         return len(self.file_list)
@@ -35,81 +41,88 @@ class Generator_train_dataset(Dataset):
 
         file = self.file_list[idx]
 
-        clean_wav,_ = librosa.load(self.file_list[idx], sr=44100)
-        noise_wav,_ = librosa.load(os.path.join(self.noise_path, self.file_list[idx].split('/')[-1]), sr=44100)
+        clean_wav,_ = librosa.load(
+            self.file_list[idx], 
+            sr=sampling_frequency)
+        noise_wav,_ = librosa.load(
+            os.path.join(self.noise_path, self.file_list[idx].split('/')[-1]), 
+            sr=sampling_frequency)
 
         # already power compression by 0.30
-        noise_mag,noise_phase = Sp_and_phase(noise_wav, Normalization=True)
-        clean_mag,clean_phase = Sp_and_phase(clean_wav, Normalization=True)
+        noise_mag, noise_phase = Sp_and_phase(noise_wav, Normalization=True)
+        clean_mag, clean_phase = Sp_and_phase(clean_wav, Normalization=True)
 
         #bandNoise = compute_band_E(noise_wav) ** pban
         #bandClean = compute_band_E(clean_wav) ** pban
 
-        return clean_mag,clean_phase,noise_mag,noise_phase,self.target_score
+        return clean_mag, clean_phase, noise_mag, noise_phase, self.target_score
+
 
 class Discriminator_train_dataset(Dataset):
     def __init__(self, file_list, noise_path, clean_path):
         self.file_list = file_list
         self.noise_path = noise_path
         self.clean_path = clean_path
+
     def __len__(self):
         return len(self.file_list)
 
-    def __getitem__(self,idx):
+    def __getitem__(self, idx):
         pban = 0.20
         score_filepath = self.file_list[idx].split(',')
-        if default.TargetMetric == 'siib&estoi':
+        if TargetMetric == 'siib&estoi':
             enhanced_wav_path = score_filepath[2]
         else:
             enhanced_wav_path = score_filepath[1]
         
-        enhance_wav,_ = librosa.load(enhanced_wav_path, sr=44100)
+        enhance_wav,_  = librosa.load(enhanced_wav_path, sr=sampling_frequency)
         enhance_mag, _ = Sp_and_phase(enhance_wav, Normalization=True)
         #pdb.set_trace()
         f = self.file_list[idx].split('/')[-1]
         if '@' in f:
             f = f.split('@')[0] + '.wav'
-        noise_wav,_ = librosa.load(os.path.join(self.noise_path, f), sr=44100)
+        noise_wav,_  = librosa.load(os.path.join(self.noise_path, f), sr=sampling_frequency)
         noise_mag, _ = Sp_and_phase(noise_wav, Normalization=True)
 
-        clean_wav, _ = librosa.load(os.path.join(self.clean_path, f), sr=44100)
+        clean_wav, _ = librosa.load(os.path.join(self.clean_path, f), sr=sampling_frequency)
         clean_mag, _ = Sp_and_phase(clean_wav, Normalization=True)
 
         #bandNoise = compute_band_E(noise_wav) ** pban
         #bandEnhan = compute_band_E(enhance_wav) ** pban
         #bandClean = compute_band_E(clean_wav) ** pban
 
-        if default.TargetMetric == 'siib&estoi':
-            True_score = np.asarray([float(score_filepath[0]),float(score_filepath[1])],dtype=np.float32)
+        if TargetMetric == 'siib&estoi':
+            True_score = np.asarray([float(score_filepath[0]), float(score_filepath[1])], dtype=np.float32)
         else:
-            True_score = np.asarray([float(score_filepath[0])],dtype=np.float32)
+            True_score = np.asarray([float(score_filepath[0])], dtype=np.float32)
 
         #noise_mag, clean_mag, bandNoise, bandClean = noise_mag.T, clean_mag.T, bandNoise.T, bandClean.T
         #enhance_mag, bandEnhan = enhance_mag.T, bandEnhan.T
         noise_mag, clean_mag, enhance_mag = noise_mag.T, clean_mag.T, enhance_mag.T
 
-        noise_mag = noise_mag.reshape(1,513,noise_mag.shape[1])
-        clean_mag = clean_mag.reshape(1,513,clean_mag.shape[1])
-        enhance_mag = enhance_mag.reshape(1,513,enhance_mag.shape[1])
+        noise_mag   = noise_mag.reshape(1, 513, noise_mag.shape[1])
+        clean_mag   = clean_mag.reshape(1, 513, clean_mag.shape[1])
+        enhance_mag = enhance_mag.reshape(1, 513, enhance_mag.shape[1])
 
         #bandNoise = bandNoise.reshape(1,40,bandNoise.shape[1])
         #bandClean = bandClean.reshape(1,40,bandClean.shape[1])
         #bandEnhan = bandEnhan.reshape(1,40,bandEnhan.shape[1])
 
-        return np.concatenate((enhance_mag,noise_mag,clean_mag),axis=0), True_score
+        return np.concatenate((enhance_mag, noise_mag, clean_mag), axis=0), True_score
     
+
 def create_dataloader(filelist, noise_path, clean_path=None, loader='G'):
     if loader=='G':
         return DataLoader(dataset=Generator_train_dataset(filelist, noise_path),
-                          batch_size=1,
-                          shuffle=True,
-                          num_workers=6,
+                          batch_size=batch_size,
+                          shuffle=shuffle_dataloader,
+                          num_workers=num_workers,
                           drop_last=True)
     elif loader=='D':
         return DataLoader(dataset=Discriminator_train_dataset(filelist, noise_path, clean_path),
-                          batch_size=1,
-                          shuffle=True,
-                          num_workers=6,
+                          batch_size=batch_size,
+                          shuffle=shuffle_dataloader,
+                          num_workers=num_workers,
                           drop_last=True)
     else:
-        raise Exception("No such dataloader type!")
+        raise Exception("dataloader type should be G (generator) or D (discriminator)!")

@@ -3,17 +3,21 @@ import torch
 import torch.nn as nn
 import torch.nn.utils.spectral_norm as spectral_norm
 
+import default_settings as default
+
 class Generator(nn.Module):
     def __init__(self):
         super(Generator, self).__init__()
-        self.blstm = nn.LSTM(513*2, 400, dropout=0.1, num_layers=2, bidirectional=True, batch_first=True)
+        self.blstm = nn.LSTM(513*2, 400, 
+            dropout=0.1, num_layers=2, bidirectional=True, batch_first=True)
         self.LReLU = nn.LeakyReLU(0.3)
         self.Dropout = nn.Dropout(p=0.1)
         self.fc1 = nn.Linear(400*2,600)
         self.fc2 = nn.Linear(600,513)
+
     def forward(self,x,y):
         #  x: clean mag, y: noise mag
-        inputs = torch.cat((x,y),dim=2)
+        inputs = torch.cat((x,y), dim=2) 
         output, _ = self.blstm(inputs)
         output = self.fc1(output)
         output = self.LReLU(output)
@@ -72,7 +76,7 @@ class Discriminator_single(nn.Module):
         self.LReLU = nn.LeakyReLU(0.3)
         self.fc1 = spectral_norm(nn.Linear(64,64))
         self.fc2 = spectral_norm(nn.Linear(64,10))
-        self.fc3 = spectral_norm(nn.Linear(10,1))
+        self.fc3 = spectral_norm(nn.Linear(10,len(default.target_score)))
 
     def forward(self,x):
         for layer in self.layers:
