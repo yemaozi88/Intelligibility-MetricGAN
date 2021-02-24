@@ -107,7 +107,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
     random.shuffle(Generator_Train_paths)
     genloader = create_dataloader(Generator_Train_paths[0:round(1*num_of_sampling)],Train_Noise_path)
 
-    if gan_epoch>=10:
+    if gan_epoch>=3:
         print('Generator training (with discriminator fixed)...')
         for clean_mag,clean_phase,noise_mag,noise_phase, target in tqdm(genloader):
             clean_mag = clean_mag.cuda()
