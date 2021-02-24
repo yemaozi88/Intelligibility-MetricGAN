@@ -33,7 +33,7 @@ target_score = np.asarray([1.0])
 # number of samples to be used for generator training. 
 num_of_sampling = 500
 # number of samples to be used for discriminator validation.
-num_of_valid_sample = 25
+num_of_valid_sample = 500
 
 sampling_frequency = 44100
 shuffle_dataloader = False

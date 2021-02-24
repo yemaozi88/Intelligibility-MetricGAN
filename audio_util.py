@@ -303,6 +303,7 @@ def get_filepaths(directory):
                 filepath = os.path.join(root, filename)
                 file_paths.append(filepath)  # Add it to the list.
 
+    file_paths.sort()
     return file_paths  # Self-explanatory.
 
 
