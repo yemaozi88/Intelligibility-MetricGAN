@@ -62,7 +62,7 @@ class Discriminator_train_dataset(Dataset):
             enhanced_wav_path = score_filepath[2]
         else:
             enhanced_wav_path = score_filepath[1]
-
+        
         enhance_wav,_ = librosa.load(enhanced_wav_path, sr=44100)
         enhance_mag, _ = Sp_and_phase(enhance_wav, Normalization=True)
         #pdb.set_trace()

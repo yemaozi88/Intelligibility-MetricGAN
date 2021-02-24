@@ -14,6 +14,7 @@ import numpy as np
 import numpy.matlib
 import random
 import subprocess
+import sys
 
 import torch
 import torch.nn as nn
@@ -21,7 +22,7 @@ from pystoi.stoi import stoi
 from tqdm import tqdm
 import pdb
 
-from model import Generator, Discriminator
+from model import Generator, Discriminator, Discriminator_single
 from audio_util import *
 from dataloader import *
 
@@ -70,8 +71,16 @@ print('Reading path of validation data...')
 Generator_Test_paths = get_filepaths(Test_Clean_path) 
 random.shuffle(Generator_Test_paths)
 ################################################################
+if not TargetMetric=='siib&estoi' and not TargetMetric=='siib' and not TargetMetric=='estoi':
+    tensor_writer.close()
+    print('Finished')
+    sys.exit()
+
 G = Generator().cuda()
-D = Discriminator().cuda()
+if TargetMetric=='siib&estoi':
+    D = Discriminator().cuda()
+else:
+    D = Discriminator_single().cuda()
 MSELoss = nn.MSELoss().cuda()
 
 optimizer_g = torch.optim.Adam(G.parameters(), lr=1e-3)
@@ -198,7 +207,7 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
                     ax2 = fig.add_subplot(2, 1, 2)
                     ax1.plot(t, enh_wav)
                     ax2.specgram(enh_wav,Fs=fs)
-                    tensor_writer.add_figure(wave_name, fig, gan_epoch)
+                    tensor_writer.add_figure(wave_name + '_epoch' + str(gan_epoch), fig, gan_epoch)
 
                 utterance+=1      
                 Test_enhanced_Name.append(enhanced_name) 
@@ -281,34 +290,29 @@ for gan_epoch in np.arange(1, GAN_epoch+1):
 
     G.train()
 
+    # Calculate True SIIB score
+    train_SIIB = read_batch_SIIB(Train_Clean_path, Train_Noise_path, Enhanced_name)
+    train_STOI = read_batch_STOI(Train_Clean_path, Train_Noise_path, Enhanced_name)
+    
+    #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
+    DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S).split('@')[0]+'.wav') for S in Enhanced_name]
+    #pdb.set_trace()
+    train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
+    train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
     if TargetMetric=='siib&estoi':
-        # Calculate True SIIB score
-        train_SIIB = read_batch_SIIB(Train_Clean_path, Train_Noise_path, Enhanced_name)
-        train_STOI = read_batch_STOI(Train_Clean_path, Train_Noise_path, Enhanced_name)
         train_SIIB = List_concat_score(train_SIIB, train_STOI)
         current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
     
-        #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
-        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S).split('@')[0]+'.wav') for S in Enhanced_name]
-        #pdb.set_trace()
-        train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
-        train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
         train_SIIB_DRC = List_concat_score(train_SIIB_DRC, train_STOI_DRC)
         Co_DRC_list = List_concat(train_SIIB_DRC, DRC_Enhanced_name)
     elif TargetMetric=='siib':
-        # Calculate True SIIB score
-        train_SIIB = read_batch_SIIB(Train_Clean_path, Train_Noise_path, Enhanced_name)
-        #train_STOI = read_batch_STOI(Train_Clean_path, Train_Noise_path, Enhanced_name)
-        #train_SIIB = List_concat_score(train_SIIB, train_STOI)
         current_sampling_list=List_concat(train_SIIB, Enhanced_name) # This list is used to train discriminator.
-    
-        #DRC_Enhanced_name = [Train_Enhan_path+'Train_'+S.split('/')[-1].split('_')[-1].split('@')[0]+'.wav' for S in Enhanced_name]        
-        DRC_Enhanced_name = [os.path.join(Train_Enhan_path, os.path.basename(S).split('@')[0]+'.wav') for S in Enhanced_name]
-        #pdb.set_trace()
-        train_SIIB_DRC = read_batch_SIIB_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
-        #train_STOI_DRC = read_batch_STOI_DRC(Train_Clean_path, Train_Noise_path, DRC_Enhanced_name)
-        #train_SIIB_DRC = List_concat_score(train_SIIB_DRC, train_STOI_DRC)
-        Co_DRC_list = List_concat(train_SIIB_DRC, DRC_Enhanced_name)        
+        
+        Co_DRC_list = List_concat(train_SIIB_DRC, DRC_Enhanced_name)
+    elif TargetMetric=='estoi':
+        current_sampling_list=List_concat(train_STOI, Enhanced_name) # This list is used to train discriminator.
+        
+        Co_DRC_list = List_concat(train_STOI_DRC, DRC_Enhanced_name)
 
     print("Discriminator training...")
     # Training for current list
