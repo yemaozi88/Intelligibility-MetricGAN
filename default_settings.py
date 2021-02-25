@@ -36,8 +36,8 @@ num_of_sampling = 500
 num_of_valid_sample = 500
 
 sampling_frequency = 44100
-shuffle_dataloader = False
-shuffle_paths = False
+shuffle_dataloader = True
+shuffle_paths = True
 
 # training parameters.
 GAN_epoch = 300
