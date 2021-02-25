@@ -69,6 +69,9 @@ creatdir(pt_dir)
 creatdir(output_path)
 creatdir(log_dir)
 
+use_device_id = default.use_device_id
+torch.cuda.set_device(use_device_id)
+
 tensor_log_dir = os.path.join(log_dir, 'logs')
 tensor_writer = SummaryWriter(log_dir=tensor_log_dir)
 

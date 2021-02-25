@@ -40,6 +40,7 @@ shuffle_dataloader = True
 shuffle_paths = True
 
 # training parameters.
+use_device_id = 2
 GAN_epoch = 300
 batch_size = 1
 learning_rate_generator = 1e-4
