@@ -16,7 +16,7 @@ Test_Noise_path = os.path.join(test_dir, 'noise')
 Test_Clean_path = os.path.join(test_dir, 'clean')
 
 # the directory where the experimental results will be saved.
-main_dir    = r'/home/akikun/projects/nele/experiments/noise4_siib'
+main_dir    = r'/home/akikun/projects/nele/experiments/noise4_siib-estoi2'
 output_path = os.path.join(main_dir, 'output')
 pt_dir      = os.path.join(main_dir, 'checkpoint')
 log_dir     = os.path.join(main_dir, 'log')
@@ -24,11 +24,11 @@ log_dir     = os.path.join(main_dir, 'log')
 # 1st: SIIB 2nd: ESTOI 
 # It can be either 'SIIB' or 'ESTOI' or both for now. 
 # Of course, it can be any arbitary metric of interest.
-#TargetMetric = 'siib&estoi'
-TargetMetric = 'siib'
+TargetMetric = 'siib&estoi'
+#TargetMetric = 'siib'
 # Target metric scores you want generator to generate. 
-#target_score = np.asarray([1.0, 1.0]) 
-target_score = np.asarray([1.0]) 
+target_score = np.asarray([1.0, 1.0]) 
+#target_score = np.asarray([1.0]) 
 
 # number of samples to be used for generator training. 
 num_of_sampling = 500

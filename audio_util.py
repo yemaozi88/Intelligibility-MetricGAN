@@ -174,7 +174,7 @@ def read_STOI(clean_root, noise_root, enhanced_file):
     clean_wav = clean_wav[:minL]
     noise_wav = noise_wav[:minL]
     enhanced_wav = enhanced_wav[:minL]
-    stoi_score = stoi(clean_wav, enhanced_wav + noise_wav, fs, extended=True)   
+    stoi_score = stoi(clean_wav, enhanced_wav + noise_wav, fs, extended=True) *1.5  
     return stoi_score
     
 # Parallel computing for accelerating    

@@ -9,7 +9,10 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": [
+                "/home/akikun/projects/nele/experiments/ssdrc/output/hikari-001_001.wav"
+            ]
         }
     ]
 }
